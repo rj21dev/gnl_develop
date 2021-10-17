@@ -9,8 +9,8 @@ char	*get_next_line(int fd)
 	static char	*tail;
 	int			byteIsRead;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
+	/*if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);*/
 	eolPtr = check_tail(tail, &line);
 	while (!eolPtr && (byteIsRead = read(fd, buf, BUFFER_SIZE)))
 	{

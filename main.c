@@ -13,7 +13,15 @@ int	main(void)
 		printf("File is damaged...");
 		return (1);
 	}
-	
+/*	line = get_next_line(fd);
+	printf("%s\n", line);
+	free(line);
+	line = get_next_line(fd);
+	printf("%s\n", line);
+	free(line);
+	line = get_next_line(fd);
+	printf("%s\n", line);
+	free(line);*/
 	while ((line = get_next_line(fd)))
 	{
 		printf("%s\n", line);
