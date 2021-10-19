@@ -1,53 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rjada <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/19 21:35:30 by rjada             #+#    #+#             */
+/*   Updated: 2021/10/19 21:35:38 by rjada            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
-
-char	*ft_strjoin(char const *s1, char const *s2)
-{
-	char	*res;
-	int		i;
-	int		j;
-
-	if (!s1 || !s2)
-		return (NULL);
-	res = (char *) malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (!res)
-		return (NULL);
-	i = 0;
-	while (s1[i])
-	{
-		res[i] = s1[i];
-		++i;
-	}
-	j = 0;
-	while (s2[j])
-	{
-		res[i] = s2[j];
-		++i;
-		++j;
-	}
-	res[i] = 0;
-	return (res);
-}
-
-char	*ft_strdup(const char *src)
-{
-	char	*dest;
-	int		i;
-
-	i = 0;
-	while (src[i])
-		++i;
-	dest = (char *) malloc(sizeof(char) * (i + 1));
-	if (!dest)
-		return (NULL);
-	i = 0;
-	while (src[i])
-	{
-		dest[i] = src[i];
-		++i;
-	}
-	dest[i] = 0;
-	return (dest);
-}
 
 char	*ft_strchr(const char *s, int c)
 {
@@ -66,17 +29,6 @@ size_t	ft_strlen(const char *s)
 	if (!*s)
 		return (0);
 	return (ft_strlen(++s) + 1);
-}
-
-char	*ft_strcpy(char *dest, char *src)
-{
-	int	i;
-
-	i = -1;
-	while (src[++i])
-		dest[i] = src[i];
-	dest[i] = 0;
-	return (dest);
 }
 
 char	*ft_substr(char const *s, unsigned int start, size_t len)
@@ -105,4 +57,46 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	}
 	res[i] = 0;
 	return (res);
+}
+
+size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
+{
+	size_t	i;
+	size_t	j;
+	size_t	dlen;
+
+	dlen = ft_strlen(dst);
+	i = dlen;
+	j = 0;
+	if (dlen < dstsize - 1 && dstsize > 0)
+	{
+		while (src[j] && dlen + j < dstsize - 1)
+		{
+			dst[i] = src[j];
+			++i;
+			++j;
+		}
+		dst[i] = 0;
+	}
+	if (dlen >= dstsize)
+		dlen = dstsize;
+	return (dlen + ft_strlen(src));
+}
+
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+{
+	size_t	i;
+	size_t	len;
+
+	len = ft_strlen(src);
+	if (!dstsize)
+		return (len);
+	i = 0;
+	while (src[i] && i < dstsize - 1)
+	{
+		dst[i] = src[i];
+		++i;
+	}
+	dst[i] = 0;
+	return (len);
 }

@@ -1,49 +1,107 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rjada <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/19 21:34:47 by rjada             #+#    #+#             */
+/*   Updated: 2021/10/19 21:34:56 by rjada            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 char	*get_next_line(int fd)
 {
+	static char	*remainder;
 	char		*line;
-	char		*leak;
-	char		buf[BUFFER_SIZE + 1];
-	char		*eolPtr;
-	static char	*tail;
-	int			byteIsRead;
+	char		*eol_ptr;
+	char		*tmp;
 
-	/*if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);*/
-	eolPtr = check_tail(tail, &line);
-	while (!eolPtr && (byteIsRead = read(fd, buf, BUFFER_SIZE)))
-	{
-		buf[byteIsRead] = '\0';
-		if ((eolPtr = ft_strchr(buf, '\n')))
-		{
-			*eolPtr = '\0';
-			tail = ft_strdup(++eolPtr); 
-		}
-		leak = line;
-		line = ft_strjoin(line, buf);
-		free(leak);
-	}
-	if (!byteIsRead)
+	line = NULL;
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	return (line);
+	if (remainder)
+	{
+		eol_ptr = ft_strchr(remainder, '\n');
+		if (eol_ptr)
+		{
+			line = ft_substr(remainder, 0, eol_ptr - remainder + 1);
+			tmp = ft_substr(remainder, eol_ptr - remainder + 1, BUFFER_SIZE);
+			free(remainder);
+			remainder = tmp;
+			return (line);
+		}
+		line = remainder;
+		remainder = NULL;
+	}
+	else
+		line = ft_realloc(line, 1);
+	return (read_from_fd(fd, &remainder, &line));
 }
 
-char	*check_tail(char *tail, char **line)
+char	*read_from_fd(int fd, char **remainder, char **line)
 {
-	char	*eolPtr;
+	char	buf[BUFFER_SIZE + 1];
+	char	*eol_ptr;
+	int		len;
+	int		bytes_read;
 
-	eolPtr = NULL;
-	if (tail)
-		if ((eolPtr = ft_strchr(tail, '\n')))
-		{
-			*eolPtr = '\0';
-			*line = ft_strdup(tail);
-			ft_strcpy(tail, ++eolPtr);
-		}
-		else
-			*line = ft_strdup(tail);
-	else
-		*line = ft_strdup("");
-	return (eolPtr);
+	len = ft_strlen(*line) + 1;
+	while (1)
+	{
+		bytes_read = read(fd, buf, BUFFER_SIZE);
+		buf[bytes_read] = '\0';
+		if (bytes_read <= 0)
+			return (eof_errno_case(bytes_read, remainder, line));
+		eol_ptr = ft_strchr(buf, '\n');
+		if (eol_ptr)
+			break ;
+		len += bytes_read;
+		*line = ft_realloc(*line, len);
+		ft_strlcat(*line, buf, len);
+	}
+	len += eol_ptr - buf + 1;
+	*line = ft_realloc(*line, len);
+	ft_strlcat(*line, buf, len);
+	*remainder = ft_substr(buf, eol_ptr - buf + 1, BUFFER_SIZE);
+	return (*line);
+}
+
+char	*eof_errno_case(int bytes_read, char **remainder, char **line)
+{
+	int	len;
+
+	len = ft_strlen(*line);
+	if ((*line && bytes_read < 0) || (*line && !len && !bytes_read))
+	{
+		free(*line);
+		*line = NULL;
+	}
+	if (*remainder && bytes_read < 0)
+	{
+		free(*remainder);
+		*remainder = NULL;
+	}
+	return (*line);
+}
+
+void	*ft_realloc(void *src, size_t size)
+{
+	void	*dst;
+	size_t	i;
+
+	dst = malloc(size);
+	if (!dst)
+		return (NULL);
+	i = 0;
+	while (src && i < size && ((char *)src)[i])
+	{
+		((char *)dst)[i] = ((char *)src)[i];
+		i++;
+	}
+	((char *)dst)[i] = '\0';
+	free(src);
+	return (dst);
 }

@@ -24,7 +24,7 @@ int	main(void)
 	free(line);*/
 	while ((line = get_next_line(fd)))
 	{
-		printf("%s\n", line);
+		printf("%s", line);
 		free(line);
 	}
 	close(fd);
